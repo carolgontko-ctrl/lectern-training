@@ -278,12 +278,12 @@
 
     <!-- Q: Personal device mic -->
     <div class="question hidden" id="q-mic">
-      <h2>3. Which microphone(s) do you need?</h2>
+      <h2>3. Which microphone do you need?</h2>
       <div class="options">
         <button class="option-btn" data-q="mic" data-v="none">No microphone today</button>
         <button class="option-btn" data-q="mic" data-v="handfree">Hands-free clip-on microphone</button>
         <button class="option-btn" data-q="mic" data-v="wireless">Wireless hand-held microphone</button>
-        <button class="option-btn" data-q="mic" data-v="both">Both microphones</button>
+        <button class="option-btn" data-q="mic" data-v="lectern-mic">Lectern microphone</button>
       </div>
     </div>
 
@@ -437,7 +437,7 @@
       windows:'Windows laptop', iphone:'iPhone/iPad', android:'Android' }[a.device] || a.device;
     const audio = a.audio === 'yes' ? 'with audio' : 'no audio';
     const mic = { none:'no mic', 'lectern-mic':'lectern mic', handfree:'clip-on mic',
-      wireless:'wireless mic', both:'both mics' }[a.mic] || a.mic;
+      wireless:'wireless mic', both:'lectern mic' }[a.mic] || a.mic;
     return `${device} · ${audio} · ${mic}`;
   }
 
@@ -605,10 +605,11 @@
       }
       if (a.mic === 'lectern-mic') {
         steps.push({
-          title: 'Unmute the Lectern channel (Channel 2)',
-          body: `Find the channel labeled <strong>Lectern</strong>.<br><br>
+          title: 'Unmute the Lectern Microphone channel',
+          body: `On the audio console, find the channel labeled <strong>Lectern Mic</strong>.<br><br>
             Press the button at the top of that channel so it turns <strong>white</strong>.<br><br>
-            This activates the built-in microphone at the lectern.`
+            Then check the lectern microphone itself — look for the light at the bottom of the mic.
+            It should be lit <strong>green</strong>. If it is not, press the <strong>On</strong> button on the microphone to turn it on.`
         });
       }
       if (a.mic === 'wireless' || a.mic === 'both') {
