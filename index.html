@@ -9,7 +9,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #1a1a2e;
+      background: #0e2247;
       color: #eee;
       min-height: 100vh;
       display: flex;
@@ -19,39 +19,49 @@
     }
 
     .card {
-      background: #16213e;
-      border: 1px solid #0f3460;
+      background: #ffffff;
+      border: 1px solid #d0dce8;
       border-radius: 12px;
       padding: 36px;
       max-width: 640px;
       width: 100%;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      color: #1a3a6b;
     }
 
-    h1 { font-size: 1.6rem; color: #e94560; margin-bottom: 6px; }
-    .subtitle { color: #aaa; font-size: 0.95rem; margin-bottom: 32px; }
+    .logo-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo-header img {
+      max-width: 220px;
+      width: 100%;
+    }
+
+    h1 { font-size: 1.4rem; color: #1a3a6b; margin-bottom: 6px; text-align: center; }
+    .subtitle { color: #5a7a9a; font-size: 0.95rem; margin-bottom: 32px; text-align: center; }
 
     /* ── QUESTION STYLES ── */
     .question { margin-bottom: 28px; }
-    .question h2 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: #ccc; }
+    .question h2 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: #1a3a6b; }
     .options { display: flex; flex-direction: column; gap: 10px; }
 
     .option-btn {
-      background: #0f3460;
-      border: 2px solid transparent;
+      background: #eaf2fb;
+      border: 2px solid #c0d4e8;
       border-radius: 8px;
-      color: #eee;
+      color: #1a3a6b;
       cursor: pointer;
       font-size: 0.95rem;
       padding: 12px 16px;
       text-align: left;
       transition: all 0.15s;
     }
-    .option-btn:hover { border-color: #e94560; background: #1a4a7a; }
-    .option-btn.selected { border-color: #e94560; background: #1a4a7a; color: #fff; }
+    .option-btn:hover { border-color: #4a90d9; background: #d0e8f8; }
+    .option-btn.selected { border-color: #4a90d9; background: #d0e8f8; color: #1a3a6b; font-weight: 600; }
 
     .next-btn {
-      background: #e94560;
+      background: #3a8a2e;
       border: none;
       border-radius: 8px;
       color: #fff;
@@ -63,39 +73,39 @@
       width: 100%;
       transition: background 0.15s;
     }
-    .next-btn:hover { background: #c73652; }
-    .next-btn:disabled { background: #555; cursor: not-allowed; }
+    .next-btn:hover { background: #2d6e24; }
+    .next-btn:disabled { background: #b0c4d8; cursor: not-allowed; }
 
     /* ── STEP-BY-STEP VIEW ── */
     .step-header { margin-bottom: 20px; }
 
     .scenario-label {
       font-size: 0.8rem;
-      color: #aaa;
+      color: #5a7a9a;
       margin-bottom: 10px;
     }
 
     .progress-bar {
-      background: #0f3460;
+      background: #c0d4e8;
       border-radius: 99px;
       height: 6px;
       margin-bottom: 6px;
       overflow: hidden;
     }
     .progress-fill {
-      background: #e94560;
+      background: #3a8a2e;
       border-radius: 99px;
       height: 100%;
       transition: width 0.3s ease;
     }
     .step-counter {
       font-size: 0.8rem;
-      color: #aaa;
+      color: #5a7a9a;
       text-align: right;
     }
 
     .step-card {
-      background: #0f3460;
+      background: #1a3a6b;
       border-radius: 10px;
       padding: 24px;
       margin-bottom: 20px;
@@ -103,7 +113,7 @@
     }
 
     .step-num-badge {
-      background: #e94560;
+      background: #3a8a2e;
       border-radius: 99px;
       color: #fff;
       display: inline-block;
@@ -125,25 +135,25 @@
 
     .step-body {
       font-size: 0.95rem;
-      color: #ccc;
+      color: #e0ecf8;
       line-height: 1.7;
     }
 
     .step-body strong { color: #fff; }
     .step-body code {
-      background: #1a1a2e;
+      background: #0e2247;
       border-radius: 4px;
-      color: #e94560;
+      color: #7dd45a;
       font-size: 0.9em;
       padding: 2px 6px;
     }
-    .step-body a { color: #e94560; }
+    .step-body a { color: #7dd45a; }
 
     .step-img {
       border-radius: 8px;
       margin-top: 14px;
       max-width: 100%;
-      border: 1px solid #0f3460;
+      border: 1px solid #4a90d9;
     }
 
     .step-nav {
@@ -164,18 +174,18 @@
 
     .nav-btn.prev {
       background: transparent;
-      border: 2px solid #0f3460;
-      color: #aaa;
+      border: 2px solid #4a90d9;
+      color: #4a90d9;
     }
-    .nav-btn.prev:hover { border-color: #e94560; color: #fff; }
+    .nav-btn.prev:hover { border-color: #1a3a6b; color: #1a3a6b; }
     .nav-btn.prev:disabled { opacity: 0.3; cursor: not-allowed; }
 
     .nav-btn.next-step {
-      background: #e94560;
-      border: 2px solid #e94560;
+      background: #3a8a2e;
+      border: 2px solid #3a8a2e;
       color: #fff;
     }
-    .nav-btn.next-step:hover { background: #c73652; border-color: #c73652; }
+    .nav-btn.next-step:hover { background: #2d6e24; border-color: #2d6e24; }
 
     .nav-btn.done {
       background: #2ecc71;
@@ -186,22 +196,22 @@
 
     .restart-btn {
       background: transparent;
-      border: 2px solid #0f3460;
+      border: 2px solid #c0d4e8;
       border-radius: 8px;
-      color: #aaa;
+      color: #5a7a9a;
       cursor: pointer;
       font-size: 0.85rem;
       padding: 8px 16px;
       transition: all 0.15s;
       width: 100%;
     }
-    .restart-btn:hover { border-color: #e94560; color: #fff; }
+    .restart-btn:hover { border-color: #4a90d9; color: #1a3a6b; }
 
     .complete-banner {
-      background: #1a3a2a;
-      border: 1px solid #2ecc71;
+      background: #d4f0c8;
+      border: 1px solid #3a8a2e;
       border-radius: 10px;
-      color: #2ecc71;
+      color: #2d6e24;
       font-size: 1rem;
       font-weight: 600;
       margin-bottom: 20px;
@@ -218,12 +228,15 @@
 
   <!-- QUESTIONS SECTION -->
   <div id="questions-view">
+    <div class="logo-header">
+      <img src="images/GTC-logo.png" alt="Grand Tech Club">
+    </div>
     <h1>Tech Club A/V Setup Guide</h1>
     <p class="subtitle">Answer a few questions and we'll walk you through the exact steps you need.</p>
 
     <div class="question" id="q-device">
       <h2>1. What will you be using today?</h2>
-      <p style="color:#aaa; font-size:0.85rem; margin:-8px 0 12px;">At this time you may select only one device. It will appear on all three TVs and the lectern monitor.</p>
+      <p style="color:#5a7a9a; font-size:0.85rem; margin:-8px 0 12px;">At this time you may select only one device. It will appear on all three TVs and the lectern monitor.</p>
       <div class="options">
         <button class="option-btn" data-q="device" data-v="lectern-pc">Lectern PC</button>
         <button class="option-btn" data-q="device" data-v="lectern-mac">Lectern Mac</button>
