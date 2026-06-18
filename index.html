@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech Club Lectern A/V Guide</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 12px;
+      padding: 36px;
+      max-width: 640px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    h1 { font-size: 1.6rem; color: #e94560; margin-bottom: 6px; }
+    .subtitle { color: #aaa; font-size: 0.95rem; margin-bottom: 32px; }
+
+    /* ── QUESTION STYLES ── */
+    .question { margin-bottom: 28px; }
+    .question h2 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: #ccc; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+
+    .option-btn {
+      background: #0f3460;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      color: #eee;
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 12px 16px;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .option-btn:hover { border-color: #e94560; background: #1a4a7a; }
+    .option-btn.selected { border-color: #e94560; background: #1a4a7a; color: #fff; }
+
+    .next-btn {
+      background: #e94560;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 24px;
+      padding: 14px 28px;
+      width: 100%;
+      transition: background 0.15s;
+    }
+    .next-btn:hover { background: #c73652; }
+    .next-btn:disabled { background: #555; cursor: not-allowed; }
+
+    /* ── STEP-BY-STEP VIEW ── */
+    .step-header { margin-bottom: 20px; }
+
+    .scenario-label {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar {
+      background: #0f3460;
+      border-radius: 99px;
+      height: 6px;
+      margin-bottom: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: #e94560;
+      border-radius: 99px;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    .step-counter {
+      font-size: 0.8rem;
+      color: #aaa;
+      text-align: right;
+    }
+
+    .step-card {
+      background: #0f3460;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+      min-height: 160px;
+    }
+
+    .step-num-badge {
+      background: #e94560;
+      border-radius: 99px;
+      color: #fff;
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      padding: 3px 12px;
+      text-transform: uppercase;
+    }
+
+    .step-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .step-body {
+      font-size: 0.95rem;
+      color: #ccc;
+      line-height: 1.7;
+    }
+
+    .step-body strong { color: #fff; }
+    .step-body code {
+      background: #1a1a2e;
+      border-radius: 4px;
+      color: #e94560;
+      font-size: 0.9em;
+      padding: 2px 6px;
+    }
+    .step-body a { color: #e94560; }
+
+    .step-img {
+      border-radius: 8px;
+      margin-top: 14px;
+      max-width: 100%;
+      border: 1px solid #0f3460;
+    }
+
+    .step-nav {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .nav-btn {
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 12px 20px;
+      transition: all 0.15s;
+      flex: 1;
+    }
+
+    .nav-btn.prev {
+      background: transparent;
+      border: 2px solid #0f3460;
+      color: #aaa;
+    }
+    .nav-btn.prev:hover { border-color: #e94560; color: #fff; }
+    .nav-btn.prev:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .nav-btn.next-step {
+      background: #e94560;
+      border: 2px solid #e94560;
+      color: #fff;
+    }
+    .nav-btn.next-step:hover { background: #c73652; border-color: #c73652; }
+
+    .nav-btn.done {
+      background: #2ecc71;
+      border: 2px solid #2ecc71;
+      color: #fff;
+    }
+    .nav-btn.done:hover { background: #27ae60; border-color: #27ae60; }
+
+    .restart-btn {
+      background: transparent;
+      border: 2px solid #0f3460;
+      border-radius: 8px;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 8px 16px;
+      transition: all 0.15s;
+      width: 100%;
+    }
+    .restart-btn:hover { border-color: #e94560; color: #fff; }
+
+    .complete-banner {
+      background: #1a3a2a;
+      border: 1px solid #2ecc71;
+      border-radius: 10px;
+      color: #2ecc71;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding: 16px 20px;
+      text-align: center;
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- QUESTIONS SECTION -->
+  <div id="questions-view">
+    <h1>Tech Club A/V Setup Guide</h1>
+    <p class="subtitle">Answer a few questions and we'll walk you through the exact steps you need.</p>
+
+    <div class="question" id="q-device">
+      <h2>1. What will you be using today?</h2>
+      <p style="color:#aaa; font-size:0.85rem; margin:-8px 0 12px;">At this time you may select only one device. It will appear on all three TVs and the lectern monitor.</p>
+      <div class="options">
+        <button class="option-btn" data-q="device" data-v="lectern-pc">Lectern PC</button>
+        <button class="option-btn" data-q="device" data-v="lectern-mac">Lectern Mac</button>
+        <button class="option-btn" data-q="device" data-v="mac">My Mac laptop</button>
+        <button class="option-btn" data-q="device" data-v="windows">My Windows laptop</button>
+        <button class="option-btn" data-q="device" data-v="iphone">My iPhone / iPad</button>
+        <button class="option-btn" data-q="device" data-v="android">My Android phone</button>
+      </div>
+    </div>
+
+    <!-- Q2a: Lectern PC / Mac audio -->
+    <div class="question hidden" id="q-audio-lectern">
+      <h2>2. Will you be playing something with sound on the lectern? (e.g. a YouTube video, music, or any audio from the lectern computer)</h2>
+      <div class="options">
+        <button class="option-btn" data-q="audio" data-v="yes">Yes — I need the room speakers to play sound from the lectern computer</button>
+        <button class="option-btn" data-q="audio" data-v="no">No — I don't need any sound from the lectern computer</button>
+      </div>
+    </div>
+
+    <!-- Q3a: Lectern PC / Mac mic -->
+    <div class="question hidden" id="q-mic-lectern">
+      <h2>3. Will you be using the microphone(s)?</h2>
+      <div class="options">
+        <button class="option-btn" data-q="mic" data-v="lectern-mic">Lectern microphone</button>
+        <button class="option-btn" data-q="mic" data-v="wireless">Wireless hand-held microphone</button>
+        <button class="option-btn" data-q="mic" data-v="handfree">Hands-free clip-on microphone</button>
+        <button class="option-btn" data-q="mic" data-v="none">No microphone today</button>
+      </div>
+    </div>
+
+    <!-- Q: Personal device audio -->
+    <div class="question hidden" id="q-audio">
+      <h2 id="q-audio-label">2. Will you be playing something with sound from your device?</h2>
+      <div class="options">
+        <button class="option-btn" data-q="audio" data-v="yes">Yes — I need the room speakers to play sound from my device</button>
+        <button class="option-btn" data-q="audio" data-v="no">No — I don't need any sound from my device</button>
+      </div>
+    </div>
+
+    <!-- Q: Personal device mic -->
+    <div class="question hidden" id="q-mic">
+      <h2>3. Which microphone(s) do you need?</h2>
+      <div class="options">
+        <button class="option-btn" data-q="mic" data-v="none">No microphone today</button>
+        <button class="option-btn" data-q="mic" data-v="handfree">Hands-free clip-on microphone</button>
+        <button class="option-btn" data-q="mic" data-v="wireless">Wireless hand-held microphone</button>
+        <button class="option-btn" data-q="mic" data-v="both">Both microphones</button>
+      </div>
+    </div>
+
+    <button class="next-btn" id="show-steps-btn" disabled>Show me the steps →</button>
+  </div>
+
+  <!-- STEP-BY-STEP VIEW -->
+  <div id="steps-view" class="hidden">
+    <div class="step-header">
+      <div class="scenario-label" id="step-scenario"></div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="step-counter" id="step-counter"></div>
+    </div>
+
+    <div id="complete-banner" class="complete-banner hidden">
+      ✅ All done! Your A/V setup is complete.
+    </div>
+
+    <div class="step-card" id="step-card">
+      <div class="step-num-badge" id="step-badge"></div>
+      <div class="step-title" id="step-title"></div>
+      <div class="step-body" id="step-body"></div>
+    </div>
+
+    <div class="step-nav">
+      <button class="nav-btn prev" id="prev-btn">← Back</button>
+      <button class="nav-btn next-step" id="next-btn">Next Step →</button>
+    </div>
+
+    <button class="restart-btn" id="restart-btn">← Start over / change answers</button>
+  </div>
+
+</div>
+
+<script>
+  const answers = {};
+  let allSteps = [];
+  let currentStep = 0;
+
+  // ── QUESTION BRANCHING ────────────────────────────────────────────────────
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = btn.dataset.q;
+      const v = btn.dataset.v;
+
+      document.querySelectorAll(`.option-btn[data-q="${q}"]`).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      answers[q] = v;
+
+      const isLectern = answers.device === 'lectern-pc' || answers.device === 'lectern-mac';
+      const isWindows = answers.device === 'windows';
+
+      if (q === 'device') {
+        ['q-audio-lectern','q-mic-lectern','q-audio','q-mic'].forEach(id =>
+          document.getElementById(id).classList.add('hidden'));
+        delete answers.audio; delete answers.mic;
+        document.getElementById('show-steps-btn').disabled = true;
+
+        if (isLectern) {
+          document.getElementById('q-audio-lectern').classList.remove('hidden');
+        } else {
+          const names = { mac:'Mac laptop', iphone:'iPhone / iPad', android:'Android phone' };
+          const name = names[v] || 'device';
+          document.getElementById('q-audio-label').textContent =
+            `2. Will you be playing something with sound from your ${name}? (e.g. a YouTube video, music, or any audio from your ${name})`;
+          document.getElementById('q-audio').classList.remove('hidden');
+        }
+      } else if (q === 'audio') {
+        document.getElementById(isLectern ? 'q-mic-lectern' : 'q-mic').classList.remove('hidden');
+      }
+
+      // Enable submit when audio + mic answered
+      if (answers.audio && answers.mic) {
+        document.getElementById('show-steps-btn').disabled = false;
+      }
+    });
+  });
+
+  // ── START STEPS ───────────────────────────────────────────────────────────
+  document.getElementById('show-steps-btn').addEventListener('click', () => {
+    allSteps = buildSteps(answers);
+    currentStep = 0;
+    document.getElementById('step-scenario').textContent = 'Scenario: ' + describeScenario(answers);
+    document.getElementById('questions-view').classList.add('hidden');
+    document.getElementById('steps-view').classList.remove('hidden');
+    renderStep();
+  });
+
+  // ── NAVIGATION ────────────────────────────────────────────────────────────
+  document.getElementById('next-btn').addEventListener('click', () => {
+    if (currentStep < allSteps.length - 1) {
+      currentStep++;
+      renderStep();
+    } else {
+      // Final step reached — show completion
+      document.getElementById('complete-banner').classList.remove('hidden');
+      document.getElementById('step-card').classList.add('hidden');
+      document.getElementById('next-btn').classList.add('hidden');
+      document.getElementById('prev-btn').classList.add('hidden');
+      document.getElementById('progress-fill').style.width = '100%';
+      document.getElementById('step-counter').textContent = 'Complete!';
+    }
+  });
+
+  document.getElementById('prev-btn').addEventListener('click', () => {
+    if (currentStep > 0) { currentStep--; renderStep(); }
+  });
+
+  document.getElementById('restart-btn').addEventListener('click', () => {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+    ['q-audio-lectern','q-mic-lectern','q-audio','q-mic'].forEach(id =>
+      document.getElementById(id).classList.add('hidden'));
+    document.getElementById('show-steps-btn').disabled = true;
+    document.getElementById('complete-banner').classList.add('hidden');
+    document.getElementById('step-card').classList.remove('hidden');
+    document.getElementById('next-btn').classList.remove('hidden');
+    document.getElementById('prev-btn').classList.remove('hidden');
+    document.getElementById('next-btn').className = 'nav-btn next-step';
+    document.getElementById('next-btn').textContent = 'Next Step →';
+    document.getElementById('questions-view').classList.remove('hidden');
+    document.getElementById('steps-view').classList.add('hidden');
+  });
+
+  function renderStep() {
+    const s = allSteps[currentStep];
+    const total = allSteps.length;
+    const pct = Math.round(((currentStep + 1) / total) * 100);
+
+    document.getElementById('step-badge').textContent = `Step ${currentStep + 1} of ${total}`;
+    document.getElementById('step-counter').textContent = `${currentStep + 1} / ${total}`;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('step-title').textContent = s.title;
+    document.getElementById('step-body').innerHTML = s.body;
+
+    document.getElementById('prev-btn').disabled = currentStep === 0;
+
+    const nextBtn = document.getElementById('next-btn');
+    if (currentStep === total - 1) {
+      nextBtn.textContent = 'Mark Complete ✓';
+      nextBtn.className = 'nav-btn done';
+    } else {
+      nextBtn.textContent = 'Next Step →';
+      nextBtn.className = 'nav-btn next-step';
+    }
+  }
+
+  // ── SCENARIO DESCRIPTION ──────────────────────────────────────────────────
+  function describeScenario(a) {
+    const device = { 'lectern-pc':'Lectern PC', 'lectern-mac':'Lectern Mac', mac:'Mac laptop',
+      windows:'Windows laptop', iphone:'iPhone/iPad', android:'Android' }[a.device] || a.device;
+    const audio = a.audio === 'yes' ? 'with audio' : 'no audio';
+    const mic = { none:'no mic', 'lectern-mic':'lectern mic', handfree:'clip-on mic',
+      wireless:'wireless mic', both:'both mics' }[a.mic] || a.mic;
+    return `${device} · ${audio} · ${mic}`;
+  }
+
+  // ── IMAGE WITH SVG HIGHLIGHT OVERLAY ─────────────────────────────────────
+  // boxes: array of {x, y, w, h, color} in % coordinates of the image
+  function highlight(src, alt, boxes) {
+    const rects = boxes.map(b =>
+      `<rect x="${b.x}%" y="${b.y}%" width="${b.w}%" height="${b.h}%"
+       fill="none" stroke="${b.color || '#e94560'}" stroke-width="1.2" rx="4"/>`
+    ).join('');
+    return `
+      <div style="position:relative; display:inline-block; width:100%; margin-top:14px;">
+        <img src="${src}" alt="${alt}" class="step-img" style="width:100%; display:block;">
+        <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"
+             viewBox="0 0 100 100" preserveAspectRatio="none">
+          ${rects}
+        </svg>
+      </div>`;
+  }
+
+  // ── STEP BUILDER ──────────────────────────────────────────────────────────
+  function buildSteps(a) {
+    const steps = [];
+    const isLectern = a.device === 'lectern-pc' || a.device === 'lectern-mac';
+    const isWindows = a.device === 'windows';
+
+    // ── STEP 1: Wake up the console ───────────────────────────────────────
+    steps.push({
+      title: 'Wake up the touch panel console',
+      body: `Tap anywhere on the <strong>touch panel console</strong> on the lectern to wake it up. You should see the Home Screen shown below.<br><br>
+        <strong>Tip:</strong> The <strong>home button</strong> (house icon, highlighted in orange below) on the left side is always lit up. If you ever get lost, tap it to return to this screen.
+        ${highlight('images/console-home.png', 'Console home screen', [
+          {x: 8, y: 26, w: 9, h: 13, color: '#f39c12'}
+        ])}`
+    });
+
+    // ── STEP 2: Tap All TVs ───────────────────────────────────────────────
+    steps.push({
+      title: "Tap 'All TV’s' to control all three screens",
+      body: `On the home screen, tap the <strong>All TV's</strong> button (highlighted below) to control all three TVs at once.
+        ${highlight('images/console-home.png', 'Console home screen with All TVs highlighted', [
+          {x: 13, y: 28, w: 23, h: 34, color: '#e94560'}
+        ])}`
+    });
+
+    // ── STEP 3: Select input source ───────────────────────────────────────
+    if (isLectern) {
+      const source = a.device === 'lectern-mac' ? 'On Mac' : 'On PC';
+      const yPos  = a.device === 'lectern-mac' ? 36 : 22;
+      steps.push({
+        title: `Select '${source}' as the input source`,
+        body: `A menu will appear. Tap <strong>${source}</strong> (highlighted below) to display the Lectern ${a.device === 'lectern-mac' ? 'Mac' : 'PC'} on all TVs.
+          ${highlight('images/console-menu.png', 'Input source menu', [
+            {x: 7, y: yPos, w: 86, h: 13, color: '#e94560'}
+          ])}`
+      });
+    }
+
+    if (a.device === 'lectern-mac') {
+      steps.push({
+        title: 'Wake up the Lectern Mac',
+        body: `Click the mouse or tap any key on the keyboard to wake the Mac up. Give it about <strong>15 seconds</strong> to fully wake up and appear on the TVs.<br><br>
+          If the Mac screen prompts you for a password, enter: <code>pwpw</code>`
+      });
+    }
+
+    // ── WINDOWS PRE-REQUISITES ────────────────────────────────────────────
+    if (isWindows) {
+      steps.push({
+        title: 'Make sure you are connected to the Tech Club Wi-Fi',
+        body: `You need to be on <strong>AV-GTC-5</strong> or <strong>AV-GTC-2</strong> for Clickshare to work.<br><br>
+          Check your Wi-Fi connection now. If you are not connected, join one of those networks.<br><br>
+          Password: <code>Tech1998!</code><br><br>
+          Already connected? Hit Next Step.`
+      });
+      steps.push({
+        title: 'Make sure the Clickshare app is installed on your Windows laptop',
+        body: `If you already have the Clickshare app installed, hit Next Step.<br><br>
+          If not, download it from the official Barco site only — other sources may cause issues:<br><br>
+          <a href="https://www.barco.com/en/products/clickshare-conferencing-collaboration/app" target="_blank" style="color:#e94560;">
+            Download Clickshare for Windows →
+          </a><br><br>
+          Once downloaded, run the installer and follow the prompts, then come back and hit Next Step.`
+      });
+
+      // ── WINDOWS: Switch TVs to Clickshare ────────────────────────────────
+      steps.push({
+        title: "Tap 'All TV’s' on the console to switch the TV input",
+        body: `Go back to the touch panel console and tap <strong>All TV's</strong> (highlighted below).
+          ${highlight('images/console-home.png', 'Console home screen with All TVs highlighted', [
+            {x: 13, y: 28, w: 23, h: 34, color: '#e94560'}
+          ])}`
+      });
+      steps.push({
+        title: "Select 'On Clickshare' as the input source",
+        body: `Tap <strong>On Clickshare</strong> (highlighted below) to set all TVs to receive the Clickshare signal.
+          ${highlight('images/console-menu.png', 'Input source menu with On Clickshare highlighted', [
+            {x: 7, y: 57, w: 86, h: 13, color: '#e94560'}
+          ])}`
+      });
+
+      // ── WINDOWS CASTING ─────────────────────────────────────────────────
+      steps.push({
+        title: 'Launch the Clickshare app on your Windows laptop',
+        body: 'Open the Clickshare app from your <strong>Start menu</strong> or <strong>desktop shortcut</strong>.'
+      });
+      steps.push({
+        title: "Select 'ClickShare-GTC' from the Rooms nearby list",
+        body: `When the app opens you will see a <strong>"Rooms nearby"</strong> screen with <strong>ClickShare-GTC</strong> listed.<br><br>
+          Click on <strong>ClickShare-GTC</strong> (it will be highlighted in blue) to connect to the room system.`
+      });
+      steps.push({
+        title: 'Enter the 4-digit passcode shown on the TVs',
+        body: `You will be prompted to enter a <strong>4-digit passcode</strong>.<br><br>
+          <strong>Look at the TVs</strong> — the code will be displayed on screen. Type it into the app to complete the connection.`
+      });
+
+      if (a.audio === 'yes') {
+        steps.push({
+          title: 'Choose a specific app to share (required for audio)',
+          body: `You will be asked whether to share your <strong>entire screen</strong> or a <strong>specific app</strong>.<br><br>
+            Because you need audio from your laptop, you <strong>must choose a specific app</strong> (e.g. your browser or video player).<br><br>
+            <strong>Sharing the full screen will not carry audio</strong> through to the room speakers.`
+        });
+      } else {
+        steps.push({
+          title: 'Choose what to share',
+          body: `You will be asked whether to share your <strong>entire screen</strong> or a <strong>specific app</strong>.<br><br>
+            Since you don't need laptop audio, <strong>either option will work</strong> — choose whichever is most convenient for your session.`
+        });
+      }
+    }
+
+    // ── OTHER DEVICES (placeholders for now) ─────────────────────────────
+    else if (a.device === 'mac') {
+      steps.push({ title: 'Connect your Mac laptop via Clickshare', body: '[Placeholder — Mac casting steps here]' });
+    } else if (a.device === 'iphone') {
+      steps.push({ title: 'Connect your iPhone / iPad via Clickshare', body: '[Placeholder — iOS casting steps here]' });
+    } else if (a.device === 'android') {
+      steps.push({ title: 'Connect your Android device via Clickshare', body: '[Placeholder — Android casting steps here]' });
+    }
+
+    // ── AUDIO CONSOLE ─────────────────────────────────────────────────────
+    const needsConsole = a.audio === 'yes' || (a.mic && a.mic !== 'none');
+    if (needsConsole) {
+      steps.push({
+        title: 'Check the audio console — unmute Master and Class Rm',
+        body: `Before anything will be heard in the room, confirm two things on the audio console:<br><br>
+          <strong>1. Master button</strong> (large round button, highlighted in orange below) must be <strong>white</strong>. If it is red/pink, press it to unmute.<br><br>
+          <strong>2. Class Rm button</strong> (pink button above the Class Rm label, highlighted in red below) must also be <strong>white</strong>. If it is red/pink, press it to unmute.<br><br>
+          Both must be white or no audio will come through.
+          ${highlight('images/audio-console.png', 'Audio console showing Master button and Class Rm button', [
+            {x: 87, y: 21, w: 8,  h: 16, color: '#f39c12'},
+            {x: 77, y:  8, w: 8,  h: 12, color: '#e94560'}
+          ])}`
+      });
+
+      if (a.audio === 'yes') {
+        steps.push({
+          title: 'Unmute the Audio channel (Channel 1)',
+          body: `Find the channel labeled <strong>Audio</strong> on the far left of the console.<br><br>
+            Press the button at the top of that channel so it turns <strong>white</strong>.<br><br>
+            This allows sound from your device to play through the room speakers.`
+        });
+      }
+      if (a.mic === 'lectern-mic') {
+        steps.push({
+          title: 'Unmute the Lectern channel (Channel 2)',
+          body: `Find the channel labeled <strong>Lectern</strong>.<br><br>
+            Press the button at the top of that channel so it turns <strong>white</strong>.<br><br>
+            This activates the built-in microphone at the lectern.`
+        });
+      }
+      if (a.mic === 'wireless' || a.mic === 'both') {
+        steps.push({
+          title: 'Unmute Wireless1 (Channel 3) — wireless handheld mic',
+          body: `Find the channel labeled <strong>Wireless1</strong>.<br><br>
+            Press the button at the top of that channel so it turns <strong>white</strong>.<br><br>
+            This activates the wireless hand-held microphone.`
+        });
+      }
+      if (a.mic === 'handfree' || a.mic === 'both') {
+        steps.push({
+          title: 'Unmute Wireless2 (Channel 4) — hands-free clip-on mic',
+          body: `Find the channel labeled <strong>Wireless2</strong>.<br><br>
+            Press the button at the top of that channel so it turns <strong>white</strong>.<br><br>
+            This activates the hands-free clip-on microphone.`
+        });
+      }
+    }
+
+    // ── FINAL TEST ────────────────────────────────────────────────────────
+    steps.push({
+      title: 'Do a quick test before your session begins',
+      body: `Confirm the following:<br><br>
+        ✅ Your screen is showing on <strong>all three TVs</strong><br>
+        ${a.audio === 'yes' ? '✅ Audio from your device is coming through the <strong>room speakers</strong><br>' : ''}
+        ${a.mic && a.mic !== 'none' ? '✅ Your microphone is <strong>audible in the room</strong><br>' : ''}
+        <br>You're all set — enjoy your session! 🎉`
+    });
+
+    return steps;
+  }
+</script>
+
+</body>
+</html>
