@@ -360,7 +360,7 @@
       } else if (q === 'device') {
         ['q-audio-lectern','q-mic-lectern','q-audio','q-mic'].forEach(id =>
           document.getElementById(id).classList.add('hidden'));
-        delete answers.audio; delete answers.mic;
+        delete answers.audio; delete answers.mic; delete answers.appInstalled;
         document.getElementById('show-steps-btn').disabled = true;
 
         if (isLectern) {
@@ -451,14 +451,34 @@
     document.getElementById('prev-btn').disabled = currentStep === 0;
 
     const nextBtn = document.getElementById('next-btn');
-    if (currentStep === total - 1) {
-      nextBtn.textContent = 'Mark Complete ✓';
-      nextBtn.className = 'nav-btn done';
+    if (s.noNext) {
+      nextBtn.classList.add('hidden');
     } else {
-      nextBtn.textContent = 'Next Step →';
-      nextBtn.className = 'nav-btn next-step';
+      nextBtn.classList.remove('hidden');
+      if (currentStep === total - 1) {
+        nextBtn.textContent = 'Mark Complete ✓';
+        nextBtn.className = 'nav-btn done';
+      } else {
+        nextBtn.textContent = 'Next Step →';
+        nextBtn.className = 'nav-btn next-step';
+      }
     }
   }
+
+  // ── IN-STEP YES/NO CHOICE (e.g. "Already have the app?") ───────────────────
+  function choiceButtons(onYes, onNo, yesLabel, noLabel) {
+    return `
+      <div style="display:flex; gap:12px; margin-top:14px; flex-wrap:wrap;">
+        <button onclick="${onYes}" style="flex:1; min-width:140px; padding:14px; border-radius:10px; border:2px solid #4a90d9; background:#eaf2fb; color:#1a3a6b; font-weight:600; font-size:0.95rem; cursor:pointer;">${yesLabel}</button>
+        <button onclick="${onNo}" style="flex:1; min-width:140px; padding:14px; border-radius:10px; border:2px solid #cfe0f0; background:#fff; color:#1a3a6b; font-weight:600; font-size:0.95rem; cursor:pointer;">${noLabel}</button>
+      </div>`;
+  }
+
+  window.answerAppInstalled = function(v) {
+    answers.appInstalled = v;
+    allSteps = buildSteps(answers);
+    renderStep();
+  };
 
   // ── SCENARIO DESCRIPTION ──────────────────────────────────────────────────
   function describeScenario(a) {
@@ -474,13 +494,22 @@
 
   // ── IMAGE WITH SVG HIGHLIGHT OVERLAY ─────────────────────────────────────
   // boxes: array of {x, y, w, h, color} in % coordinates of the image
-  function highlight(src, alt, boxes) {
+  function micPhoto(src, alt, label) {
+    return `
+      <div style="display:flex; align-items:center; gap:14px; margin:10px 0;">
+        <img src="${src}" alt="${alt}" style="width:90px; height:120px; object-fit:cover; object-position:top; border-radius:8px; flex-shrink:0;">
+        <div>${label}</div>
+      </div>`;
+  }
+
+  function highlight(src, alt, boxes, maxWidthPct) {
+    const w = maxWidthPct || 100;
     const rects = boxes.map(b =>
       `<rect x="${b.x}%" y="${b.y}%" width="${b.w}%" height="${b.h}%"
        fill="none" stroke="${b.color || '#e94560'}" stroke-width="1.2" rx="4"/>`
     ).join('');
     return `
-      <div style="position:relative; display:inline-block; width:100%; margin-top:14px;">
+      <div style="position:relative; display:block; width:100%; max-width:${w}%; margin:14px auto 0;">
         <img src="${src}" alt="${alt}" class="step-img" style="width:100%; display:block;">
         <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"
              viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -504,7 +533,7 @@
       });
       steps.push({
         title: 'The Outputs — Screens and Speakers',
-        body: `<em>Photo of room coming soon.</em><br><br>
+        body: `${highlight('images/three-tv-output.png', 'Left TV, Main TV, and Right TV in the room', [])}
           The room has four display outputs:<br><br>
           <strong>Lectern Monitor</strong> — the screen at the lectern, used by the Lectern PC and Mac.<br>
           <strong>Main TV</strong> — the large TV at the front of the room. This replaced the old projector.<br>
@@ -523,10 +552,10 @@
       steps.push({
         title: 'The Audio Inputs — Microphones',
         body: `An audio input is a microphone that feeds sound into the room speakers. There are three options:<br><br>
-          <strong>Lectern Microphone</strong> — built into the lectern. Check that the light at the base is <strong>green</strong> before use.<br><br>
-          <strong>Wireless Handheld Microphone</strong> — a hand-held wireless mic you can pass around the room.<br><br>
-          <strong>Hands-Free Clip-On Microphone</strong> — a small mic you clip to your clothing, leaving your hands free.<br><br>
-          You can also play audio directly from your device (e.g. a YouTube video) through the room speakers.`
+          ${micPhoto('images/mic-lectern.png', 'Lectern microphone', '<strong>Lectern Microphone</strong> — built into the lectern. Check that the light at the base is <strong>green</strong> before use.')}
+          ${micPhoto('images/mic-wireless1.png', 'Wireless 1 handheld microphone', '<strong>Wireless Handheld Microphone</strong> — a hand-held wireless mic you can pass around the room.')}
+          ${micPhoto('images/mic-wireless2.png', 'Wireless 2 hands-free clip-on microphone', '<strong>Hands-Free Clip-On Microphone</strong> — a small mic you clip to your clothing, leaving your hands free.')}
+          <br>You can also play audio directly from your device (e.g. a YouTube video) through the room speakers.`
       });
       steps.push({
         title: 'Controller 1 — The ClickShare Console',
@@ -596,6 +625,51 @@
       return steps;
     }
 
+    // ── DEVICE PREP: App + Wi-Fi check (own devices only) ──────────────────
+    if (isWindows || a.device === 'android') {
+      const deviceLabel = isWindows ? 'Windows laptop' : 'Android device';
+
+      if (a.appInstalled === undefined) {
+        steps.push({
+          title: 'Do you already have the Clickshare app installed?',
+          noNext: true,
+          body: `Let us know if you already have the Clickshare app on your ${deviceLabel}.<br><br>
+            ${choiceButtons("window.answerAppInstalled('yes')", "window.answerAppInstalled('no')",
+              'Yes, it’s already installed', 'No, I need to install it')}`
+        });
+      } else if (a.appInstalled === 'no') {
+        steps.push(isWindows ? {
+          title: 'Install the Clickshare app on your Windows laptop',
+          body: `Download it from the official Barco site only — other sources may cause issues:<br><br>
+            <a href="https://www.barco.com/en/products/clickshare-conferencing-collaboration/app" target="_blank" style="color:#e94560;">
+              Download Clickshare for Windows →
+            </a><br><br>
+            Once downloaded, run the installer and follow the prompts, then come back and hit Next Step.`
+        } : {
+          title: 'Install the Clickshare app on your Android device',
+          body: `${highlight('images/android-playstore.png', 'ClickShare app listing in the Google Play Store', [], 60)}
+            Download it from the <strong>Google Play Store</strong> (search "ClickShare", shown above) — other sources may cause issues.<br><br>
+            Once installed, come back and hit Next Step.`
+        });
+      }
+
+      steps.push({
+        title: 'Make sure you are connected to the Tech Club Wi-Fi',
+        body: `You need to be on <strong>AV-GTC-5</strong> or <strong>AV-GTC-2</strong> for Clickshare to work.<br><br>
+          Check your Wi-Fi connection now. If you are not connected, join one of those networks.<br><br>
+          Password: <code>Tech1998!</code><br><br>
+          Already connected? Hit Next Step.`
+      });
+    } else if (a.device === 'iphone') {
+      steps.push({
+        title: 'Make sure you are connected to the Tech Club Wi-Fi',
+        body: `You need to be on <strong>AV-GTC-5</strong> or <strong>AV-GTC-2</strong> for screen mirroring to work.<br><br>
+          Check your Wi-Fi connection now. If you are not connected, join one of those networks.<br><br>
+          Password: <code>Tech1998!</code><br><br>
+          Already connected? Hit Next Step.`
+      });
+    }
+
     // ── STEP 1: Wake up the console ───────────────────────────────────────
     steps.push({
       title: 'Wake up the touch panel console',
@@ -632,6 +706,22 @@
           ])}
           A menu will appear. Tap <strong>${source}</strong> (highlighted above) to display the Lectern ${a.device === 'lectern-mac' ? 'Mac' : 'PC'} on all TVs.`
       });
+    } else if (isWindows || a.device === 'android' || a.device === 'mac') {
+      steps.push({
+        title: "Select 'On Clickshare' as the input source",
+        body: `${highlight('images/console-menu.png', 'Input source menu with On Clickshare highlighted', [
+            {x: 7, y: 57, w: 86, h: 13, color: '#e94560'}
+          ])}
+          A menu will appear. Tap <strong>On Clickshare</strong> (highlighted above) to set all TVs to receive the Clickshare signal.`
+      });
+    } else if (a.device === 'iphone') {
+      steps.push({
+        title: "Select 'On Roku' as the input source",
+        body: `${highlight('images/console-menu.png', 'Input source menu with On Roku highlighted', [
+            {x: 7, y: 46, w: 86, h: 13, color: '#e94560'}
+          ])}
+          A menu will appear. Tap <strong>On Roku</strong> (highlighted above) to set all TVs to receive the Roku signal.`
+      });
     }
 
     if (a.device === 'lectern-mac') {
@@ -642,42 +732,8 @@
       });
     }
 
-    // ── WINDOWS PRE-REQUISITES ────────────────────────────────────────────
+    // ── WINDOWS CASTING ──────────────────────────────────────────────────
     if (isWindows) {
-      steps.push({
-        title: 'Make sure you are connected to the Tech Club Wi-Fi',
-        body: `You need to be on <strong>AV-GTC-5</strong> or <strong>AV-GTC-2</strong> for Clickshare to work.<br><br>
-          Check your Wi-Fi connection now. If you are not connected, join one of those networks.<br><br>
-          Password: <code>Tech1998!</code><br><br>
-          Already connected? Hit Next Step.`
-      });
-      steps.push({
-        title: 'Make sure the Clickshare app is installed on your Windows laptop',
-        body: `If you already have the Clickshare app installed, hit Next Step.<br><br>
-          If not, download it from the official Barco site only — other sources may cause issues:<br><br>
-          <a href="https://www.barco.com/en/products/clickshare-conferencing-collaboration/app" target="_blank" style="color:#e94560;">
-            Download Clickshare for Windows →
-          </a><br><br>
-          Once downloaded, run the installer and follow the prompts, then come back and hit Next Step.`
-      });
-
-      // ── WINDOWS: Switch TVs to Clickshare ────────────────────────────────
-      steps.push({
-        title: "Tap 'All TV's' on the console to switch the TV input",
-        body: `${highlight('images/console-home.png', 'Console home screen with All TVs highlighted', [
-            {x: 13, y: 28, w: 23, h: 34, color: '#e94560'}
-          ])}
-          Go back to the touch panel console and tap <strong>All TV's</strong> (highlighted above).`
-      });
-      steps.push({
-        title: "Select 'On Clickshare' as the input source",
-        body: `${highlight('images/console-menu.png', 'Input source menu with On Clickshare highlighted', [
-            {x: 7, y: 57, w: 86, h: 13, color: '#e94560'}
-          ])}
-          Tap <strong>On Clickshare</strong> (highlighted above) to set all TVs to receive the Clickshare signal.`
-      });
-
-      // ── WINDOWS CASTING ─────────────────────────────────────────────────
       steps.push({
         title: 'Launch the Clickshare app on your Windows laptop',
         body: 'Open the Clickshare app from your <strong>Start menu</strong> or <strong>desktop shortcut</strong>.'
@@ -709,13 +765,66 @@
       }
     }
 
+    // ── ANDROID CASTING ──────────────────────────────────────────────────
+    else if (a.device === 'android') {
+      steps.push({
+        title: "Open the app and select 'ClickShare GTC' as your meeting room",
+        body: `${highlight('images/android-select-room.png', 'ClickShare app meeting room list with ClickShare GTC highlighted', [
+            {x: 8, y: 92, w: 30, h: 7, color: '#e94560'}
+          ], 60)}
+          Open the <strong>Clickshare app</strong> on your Android device.<br><br>
+          Under <strong>Select your meeting room</strong>, tap <strong>ClickShare GTC</strong> (highlighted above).`
+      });
+      steps.push({
+        title: 'Enter the passcode shown on the TVs',
+        body: `${highlight('images/android-passcode.png', 'ClickShare app passcode entry screen', [], 60)}
+          You will be prompted to enter a passcode.<br><br>
+          <strong>Look at the TVs</strong> — the code will be displayed on screen. Type it into the app to complete the connection.`
+      });
+      steps.push({
+        title: 'Tap in the middle of the white circle to connect',
+        body: `${highlight('images/android-connected-circle.png', 'ClickShare app connected screen with white circle button', [], 60)}
+          Once connected to <strong>ClickShare-GTC</strong>, tap in the middle of the white circle to connect.`
+      });
+
+      if (a.audio === 'yes') {
+        steps.push({
+          title: 'Choose "Share one app" (required for audio)',
+          body: `${highlight('images/android-share-one-app.png', 'Share your screen with ClickShare dialog set to Share one app', [], 60)}
+            You will be asked to share your screen with ClickShare.<br><br>
+            Since you need audio from your device, you <strong>must select "Share one app"</strong> (e.g. your browser or video player) and tap <strong>Next</strong>, or the audio will not work.<br><br>
+            Sharing your entire screen will not carry audio through to the room speakers.`
+        });
+      } else {
+        steps.push({
+          title: 'Choose what to share',
+          body: `${highlight('images/android-share-one-app.png', 'Share your screen with ClickShare dialog set to Share one app', [], 60)}
+            You will be asked to share your screen with ClickShare.<br><br>
+            Since you don't need device audio, <strong>you can select either "Share one app" or your entire screen</strong> — choose whichever is most convenient, then tap <strong>Next</strong>.`
+        });
+      }
+    }
+
+    // ── IPHONE / IPAD CASTING (via Roku Screen Mirroring) ──────────────────
+    else if (a.device === 'iphone') {
+      steps.push({
+        title: 'Open Control Center on your iPhone / iPad',
+        body: `Open <strong>Control Center</strong>: swipe down from the top-right corner of the screen (or swipe up from the bottom edge on older models with a Home button).`
+      });
+      steps.push({
+        title: "Tap 'Screen Mirroring'",
+        body: `In Control Center, tap the <strong>Screen Mirroring</strong> icon (two overlapping rectangles).`
+      });
+      steps.push({
+        title: "Select 'Roku' from the list",
+        body: `A list of available devices will appear. Tap <strong>Roku</strong> to begin mirroring your screen to the TVs.<br><br>
+          No app or passcode is needed for this method — audio and video both mirror automatically.`
+      });
+    }
+
     // ── OTHER DEVICES (placeholders for now) ─────────────────────────────
     else if (a.device === 'mac') {
       steps.push({ title: 'Connect your Mac laptop via Clickshare', body: '[Placeholder — Mac casting steps here]' });
-    } else if (a.device === 'iphone') {
-      steps.push({ title: 'Connect your iPhone / iPad via Clickshare', body: '[Placeholder — iOS casting steps here]' });
-    } else if (a.device === 'android') {
-      steps.push({ title: 'Connect your Android device via Clickshare', body: '[Placeholder — Android casting steps here]' });
     }
 
     // ── AUDIO CONSOLE ─────────────────────────────────────────────────────

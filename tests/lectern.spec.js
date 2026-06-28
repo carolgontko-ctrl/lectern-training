@@ -14,7 +14,13 @@ async function walkSteps(page) {
     if (await page.locator('#complete-banner').isVisible()) break;
     const done = page.locator('.nav-btn.done');
     if (await done.isVisible()) { await done.click(); break; }
-    await page.locator('#next-btn').click();
+    const nextBtn = page.locator('#next-btn');
+    if (await nextBtn.isVisible()) {
+      await nextBtn.click();
+    } else {
+      // In-step choice (e.g. "Already have the app?") — pick the first option
+      await page.locator('.step-body button').first().click();
+    }
     count++;
   }
   if (count >= 30) throw new Error('Possible infinite loop in steps');
@@ -47,10 +53,10 @@ for (const device of DEVICES_LIST) {
         await page.click(`[data-q="device"][data-v="${device}"]`);
         await expect(page.locator('[data-q="audio"]').filter({ visible: true }).first()).toBeVisible();
 
-        await page.click(`[data-q="audio"][data-v="${audio}"]`);
+        await page.locator(`[data-q="audio"][data-v="${audio}"]`).filter({ visible: true }).click();
         await expect(page.locator('[data-q="mic"]').filter({ visible: true }).first()).toBeVisible();
 
-        await page.click(`[data-q="mic"][data-v="${mic}"]`);
+        await page.locator(`[data-q="mic"][data-v="${mic}"]`).filter({ visible: true }).click();
         await expect(page.locator('#show-steps-btn')).toBeEnabled();
 
         await page.click('#show-steps-btn');
