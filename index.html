@@ -662,7 +662,7 @@
       });
     } else if (a.device === 'iphone') {
       steps.push({
-        title: 'Make sure you are connected to the Tech Club Wi-Fi',
+        title: 'Make sure your device is connected to the AV-GTC Wifi',
         body: `You need to be on <strong>AV-GTC-5</strong> or <strong>AV-GTC-2</strong> for screen mirroring to work.<br><br>
           Check your Wi-Fi connection now. If you are not connected, join one of those networks.<br><br>
           Password: <code>Tech1998!</code><br><br>
@@ -721,6 +721,11 @@
             {x: 7, y: 46, w: 86, h: 13, color: '#e94560'}
           ])}
           A menu will appear. Tap <strong>On Roku</strong> (highlighted above) to set all TVs to receive the Roku signal.`
+      });
+      steps.push({
+        title: 'The TVs will show the Roku home screen',
+        body: `${highlight('images/roku-tv-home.png', 'TV showing the Roku home screen', [], 70)}
+          Once <strong>On Roku</strong> is selected, the TVs will display the Roku home screen shown above. This means the TVs are ready and waiting for your device to connect.`
       });
     }
 
@@ -813,11 +818,13 @@
       });
       steps.push({
         title: "Tap 'Screen Mirroring'",
-        body: `In Control Center, tap the <strong>Screen Mirroring</strong> icon (two overlapping rectangles).`
+        body: `${highlight('images/ios-screen-mirroring-icon.png', 'Control Center with the Screen Mirroring icon highlighted', [], 70)}
+          In Control Center, tap the <strong>Screen Mirroring</strong> icon (highlighted above — two overlapping rectangles).`
       });
       steps.push({
-        title: "Select 'Roku' from the list",
-        body: `A list of available devices will appear. Tap <strong>Roku</strong> to begin mirroring your screen to the TVs.<br><br>
+        title: "Select 'Roku Lectern' from the list",
+        body: `${highlight('images/ios-screen-mirroring-roku-lectern.png', 'Screen Mirroring device list showing Roku Lectern', [], 70)}
+          A list of available devices will appear. Tap <strong>Roku Lectern</strong> (shown above) to begin mirroring your screen to the TVs.<br><br>
           No app or passcode is needed for this method — audio and video both mirror automatically.`
       });
     }
