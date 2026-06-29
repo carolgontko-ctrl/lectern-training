@@ -250,7 +250,7 @@
       <div class="options">
         <button class="option-btn" data-q="device" data-v="lectern-pc">Lectern PC</button>
         <button class="option-btn" data-q="device" data-v="lectern-mac">Lectern Mac</button>
-        <button class="option-btn" data-q="device" data-v="mac">My Mac laptop</button>
+        <button class="option-btn" data-q="device" data-v="mac">My Macbook</button>
         <button class="option-btn" data-q="device" data-v="windows">My Windows laptop</button>
         <button class="option-btn" data-q="device" data-v="iphone">My iPhone / iPad</button>
         <button class="option-btn" data-q="device" data-v="android">My Android phone</button>
@@ -366,7 +366,7 @@
         if (isLectern) {
           document.getElementById('q-audio-lectern').classList.remove('hidden');
         } else {
-          const names = { mac:'Mac laptop', iphone:'iPhone / iPad', android:'Android phone' };
+          const names = { mac:'Macbook', iphone:'iPhone / iPad', android:'Android phone' };
           const name = names[v] || 'device';
           document.getElementById('q-audio-label').textContent =
             `3. Will you be playing something with sound from your ${name}? (e.g. a YouTube video, music, or any audio from your ${name})`;
@@ -484,7 +484,7 @@
   function describeScenario(a) {
     if (a.device === 'overview') return 'System Overview';
     if (a.device === 'shutdown') return 'Shutting down';
-    const device = { 'lectern-pc':'Lectern PC', 'lectern-mac':'Lectern Mac', mac:'Mac laptop',
+    const device = { 'lectern-pc':'Lectern PC', 'lectern-mac':'Lectern Mac', mac:'Macbook',
       windows:'Windows laptop', iphone:'iPhone/iPad', android:'Android' }[a.device] || a.device;
     const audio = a.audio === 'yes' ? 'with audio' : 'no audio';
     const mic = { none:'no mic', 'lectern-mic':'lectern mic', handfree:'clip-on mic',
@@ -870,24 +870,29 @@
     // ── MAC CASTING (via Roku Screen Mirroring) ────────────────────────────
     else if (a.device === 'mac') {
       steps.push({
-        title: 'Open Control Center on your Mac',
-        body: `Look at the <strong>top-right corner</strong> of your screen, in the menu bar.<br><br>
-          Click the <strong>Control Center</strong> icon (it looks like two small toggle switches).`
+        title: "Open Control Center and click 'Screen Mirroring'",
+        body: `${highlight('images/mac-control-center.png', 'Mac menu bar Control Center icon and Screen Mirroring icon highlighted', [], 70)}
+          Look at the <strong>top-right corner</strong> of your screen, in the menu bar. Click the <strong>Control Center</strong> icon (highlighted above).<br><br>
+          In the panel that drops down, click the <strong>Screen Mirroring</strong> icon (also highlighted above).`
       });
       steps.push({
-        title: "Click 'Screen Mirroring'",
-        body: `In the Control Center panel that drops down, click <strong>Screen Mirroring</strong>.<br><br>
-          You'll see the AirPlay icon (a rectangle with a triangle) and a list of available devices.`
+        title: "Select 'Roku Lectern' from the list",
+        body: `A list of available devices will appear. Click <strong>Roku Lectern</strong> to begin connecting.`
       });
       steps.push({
-        title: "Select the Roku device from the list",
-        body: `Click the <strong>Roku</strong> device name in the list.<br><br>
-          Your Mac screen will appear on the TV within a few seconds.<br><br>
-          No app or passcode is needed for this method — audio and video both mirror automatically.`
+        title: 'Enter the AirPlay code shown on the TV',
+        body: `${highlight('images/mac-airplay-code.png', 'Enter the AirPlay code for Roku Lectern prompt', [], 60)}
+          A 4-digit code prompt will appear on your Mac, shown above. <strong>Look at the TVs</strong> for the code and type it in.`
+      });
+      steps.push({
+        title: "Choose 'Entire Screen' and click 'Start Mirroring'",
+        body: `${highlight('images/mac-what-to-show.png', 'What do you want to show on Roku Lectern dialog with Entire Screen selected', [], 90)}
+          Choose <strong>Entire Screen</strong> (shown above), then click <strong>Start Mirroring</strong>.<br><br>
+          Your Mac screen will appear on the TV within a few seconds. Audio and video both mirror automatically.`
       });
       steps.push({
         title: 'To stop mirroring when you are done',
-        body: `Click <strong>Control Center → Screen Mirroring</strong>, then click the <strong>Roku</strong> name again to disconnect.`
+        body: `Click <strong>Control Center → Screen Mirroring</strong>, then click the <strong>Roku Lectern</strong> name again to disconnect.`
       });
     }
 
